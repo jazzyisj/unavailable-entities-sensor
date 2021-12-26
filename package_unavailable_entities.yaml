@@ -21,12 +21,11 @@ template:
           {% endif %}
         attributes:
           entities: >
-            {% set ignore_sec = 60 %}
-            {% set ignore_ts = (now().timestamp() - ignore_sec)|as_datetime %}
+            {% set ignore_seconds = 60 %}
+            {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
             {% set entities = states
               |rejectattr('domain','eq','group')
               |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
-              |rejectattr('entity_id','search','browser_')
               |rejectattr('last_changed','lt',ignore_ts)
               |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
             {{ entities }}
