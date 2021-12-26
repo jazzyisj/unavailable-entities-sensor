@@ -23,7 +23,6 @@ template:
           entities: >
             {% set ignore_sec = 60 %}
             {% set ignore_ts = (now().timestamp() - ignore_sec)|as_datetime %}
-            {% set unavail = namespace(entities=[]) %}
             {% set entities = states
               |rejectattr('domain','eq','group')
               |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
@@ -31,7 +30,7 @@ template:
               |rejectattr('last_changed','lt',ignore_ts)
               |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
             {{ entities }}
-            
+
 # REQUIRED - Add any entities you do not with to monitor in this group.
 # IMPORTANT - This group MUST exist even if empty for sensor template to render.
 group:
