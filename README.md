@@ -42,7 +42,7 @@ This is an [example of the sensor entities attribute template from my configurat
 
     {% set ignore_sec = 60 %}
     {% set ignore_ts = (now().timestamp() - ignore_sec)|as_datetime %}
-    {% set entities = states
+    {{ states
       |rejectattr('domain','in',['group','camera'])
       |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
       |rejectattr('entity_id','search','_alarm_volume')
@@ -55,18 +55,16 @@ This is an [example of the sensor entities attribute template from my configurat
       |rejectattr('entity_id','search','_do_not_disturb')
       |rejectattr('entity_id','search','browser_')
       |rejectattr('last_changed','lt',ignore_ts)
-      |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
-    {{ entities }}
+      |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
 ## Include Domains Instead Of Exlude
 If you only wish to monitor certain domains you can choose to specifically include a domain (or list of domains) rather than exclude domains.
 
     {% set ignore_ts = (now().timestamp() - 60)|as_datetime %}
-    {% set entities = states|selectattr('domain','in',['sensor','binary_sensor'])
+    {{ states|selectattr('domain','in',['sensor','binary_sensor'])
       |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
       |rejectattr('last_changed','lt',ignore_ts)
-      |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
-    {{ entities }}
+      |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
 ## What is the log filter for?
 Some users have reported occasional template warnings in their Home Assistant log, especially when reloading templates.
