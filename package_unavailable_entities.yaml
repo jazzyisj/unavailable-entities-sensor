@@ -3,12 +3,6 @@
 ## Count and list entities with a state of unavailable, unknown, or none (null)
 #######################################################################################################################
 
-# OPTIONAL - filter template loop warnings from the Home Assistant log.
-logger:
-  filters:
-    homeassistant.components.template.template_entity:
-      - 'Template loop detected while processing event'
-
 # REQUIRED this is the template sensor
 template:
   - sensor:
@@ -23,12 +17,11 @@ template:
           entities: >
             {% set ignore_seconds = 60 %}
             {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
-            {% set entities = states
+            {{ states
               |rejectattr('domain','eq','group')
               |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
               |rejectattr('last_changed','lt',ignore_ts)
-              |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list %}
-            {{ entities }}
+              |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
 # REQUIRED - Add any entities you do not with to monitor in this group.
 # IMPORTANT - This group MUST exist even if empty for sensor template to render.
@@ -37,6 +30,12 @@ group:
     entities:
       - sensor.unavailable_entities # prevent template loop warnings?
       - binary_sensor.updater # always unknown after restart
+
+# OPTIONAL - filter template loop warnings from the Home Assistant log.
+logger:
+  filters:
+    homeassistant.components.template.template_entity:
+      - 'Template loop detected while processing event'
 
 # OPTIONAL Example automation to demonstrate how you can utilize this sensor
 automation:
