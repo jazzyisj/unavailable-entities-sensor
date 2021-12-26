@@ -38,7 +38,7 @@ to the ingore_entities group by adding the following filter.  You can add as man
 
     |rejectattr('entity_id','search','browser_')
 
-This is an [example of the sensor entities attribute template from my configuration](https://github.com/jazzyisj/home-assistant-config/blob/master/packages/hass/package_unavailable_entities_sensor_gist.yaml) that contains several additional filters.
+This is an [example of the sensor entities attribute template from my configuration](https://github.com/jazzyisj/home-assistant-config/blob/master/packages/hass/package_unavailable_entities.yaml) that contains several additional filters.
 
     {% set ignore_sec = 60 %}
     {% set ignore_ts = (now().timestamp() - ignore_sec)|as_datetime %}
