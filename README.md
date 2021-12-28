@@ -17,6 +17,7 @@ To enable packages in your configuation, create a folder in your config director
 To create this sensor without installing as a package simply copy the relevant code and paste in an appropriate place in your configuration.yaml file. The logger filter and example automation are optional. **The template sensor AND the ignored_entities group ARE BOTH REQURED for the default template to render.**
 ## Customizing The Sensor
 There are several things you can do to customize the results of this sensor to meet your requirments.
+
 [Monitoring Different States](#monitoring-different-states#)]
 
 ### Remove Ignore Group
