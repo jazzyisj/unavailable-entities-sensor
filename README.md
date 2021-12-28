@@ -34,28 +34,21 @@ For example, to ignore the button and number domains replace it with the followi
     |rejectattr('domain','in',['group','button','number'])
 ### Ignore Matching Entities
 If you have several entities to ignore that share a common uniquly identifiable portion of their entity_id name you can exclude them without adding each individual sensor
-to the ingore_entities group by adding the following filter.  You can add as many filters as you need.
+to the ingore_entities group by adding a rejectattr filter using a search test.  You can add as many of these filters as you need. Be as specific as possible in your filters so you don't exclude unintended entities!  If the entities you want don't have a specific enough string to use and they have a unique_id in HA you can rename them in the UI using a more specific string in the entity_id if necessary.
 
-    |rejectattr('entity_id','search','browser_')
+Eg You have these sensors in your configuration. And want to exclude just the wifi signal strengh sensors. Rejecting a search of 'wifi_' will also exclude the binary connected sensor.
+    - binary_sensor.wifi_connected
+    - sensor.wifi_downstairs
+    - sensor.wifi_upstairs
 
-This is an [example of the sensor entities attribute template from my configuration](https://github.com/jazzyisj/home-assistant-config/blob/master/packages/hass/package_unavailable_entities.yaml) that contains several additional filters.
+Rename the signal strengh sensors with amore specific name and update the filter with the new search.
 
-    {% set ignore_sec = 60 %}
-    {% set ignore_ts = (now().timestamp() - ignore_sec)|as_datetime %}
-    {{ states
-      |rejectattr('domain','in',['group','camera'])
-      |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
-      |rejectattr('entity_id','search','_alarm_volume')
-      |rejectattr('entity_id','search','_next_alarm')
-      |rejectattr('entity_id','search','_memory_percent')
-      |rejectattr('entity_id','search','_cpu_percent')
-      |rejectattr('entity_id','search','_timers')
-      |rejectattr('entity_id','search','_alarms')
-      |rejectattr('entity_id','search','_device')
-      |rejectattr('entity_id','search','_do_not_disturb')
-      |rejectattr('entity_id','search','browser_')
-      |rejectattr('last_changed','ge',ignore_ts)
-      |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
+    - sensor.wifi_strength_downstairs
+    - sensor.wifi_strength_upstairs
+
+    |rejectattr('entity_id','search','wifi_strength_')
+
+Now the signal strength WIFI sensors will be rejected but the WIFI connected sensor will still be monitored.
 
 **RegEx Filters**
 You can also use [regex pattern matching](https://regex101.com/) with search in a rejectattr (selectattr) filter.
@@ -67,6 +60,20 @@ Would combine these three filters
     |rejectattr('entity_id','search','_alarm_volume')
     |rejectattr('entity_id','search','_next_alarm')
     |rejectattr('entity_id','search','_alarms')
+
+This is an [example of the sensor entities attribute template from my configuration](https://github.com/jazzyisj/home-assistant-config/blob/master/packages/hass/package_unavailable_entities.yaml) that contains several additional filters.
+
+    {% set ignore_sec = 60 %}
+    {% set ignore_ts = (now().timestamp() - ignore_sec)|as_datetime %}
+    {{ states
+      |rejectattr('domain','in',['group','camera'])
+      |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
+      |rejectattr('entity_id','search','_alarm_volume|_next_alarm|_alarms')
+      |rejectattr('entity_id','search','_memory_percent|_cpu_percent')
+      |rejectattr('entity_id','search','_timers|_device|_do_not_disturb')
+      |rejectattr('entity_id','search','browser_')
+      |rejectattr('last_changed','ge',ignore_ts)
+      |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
 ## Include Domains Instead Of Exlude
 To monitor only one domain, you can limit the initial states object to that domain.  Note we also removed the group domain rejectattr filter as it is not required in this case because we are only monitoring the light domain.
