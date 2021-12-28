@@ -33,7 +33,8 @@ template:
           entities: >
             {% set ignore_sec = 60 %}
             {% set ignore_ts = (now().timestamp() - ignore_sec)|as_datetime %}
-            {{ states.sensor
+            {{ states
+              |rejectattr('domain','eq','group')
               |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
               |rejectattr('entity_id','search','_alarm_volume|_next_alarm|_alarms')
               |rejectattr('entity_id','search','_memory_percent|_cpu_percent')
