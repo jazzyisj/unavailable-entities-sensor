@@ -17,6 +17,10 @@ To create this sensor without installing as a package simply copy the relevant c
 
 **The template sensor AND the ignored_entities group ARE BOTH REQURED for the template to render.**
 
+If do not want to use the group.ignored_entities group you must also delete the following filter from the template sensor.
+
+    |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
+
 The logger filter and example automation are both optional.
 ## Customizing The Sensor
 There are several things you can do to customize the results of this sensor.
@@ -76,8 +80,8 @@ This is an [example of the sensor entities attribute template from my configurat
       |rejectattr('last_changed','ge',ignore_ts)
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
-## Include Domains Instead Of Exlude
-To monitor only one domain, you can limit the initial states object to that domain.  Note we also removed the group domain rejectattr filter as it is not required in this case because we are only monitoring the light domain.
+## Include Domains Instead Of Exclude
+To monitor only one domain, you can limit the initial states object to that domain.  Note the group domain rejectattr filter is not required in this case because we are only monitoring the light domain.
 
     {% set ignore_ts = (now().timestamp() - 60)|as_datetime %}
     {{ states.light
@@ -86,7 +90,7 @@ To monitor only one domain, you can limit the initial states object to that doma
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
 
-If you wish to monitor more than one specified domain you can use a selectattr filter to select a list of domains.  The group rejectattr filter is also not required here.
+If you wish to monitor more than one specified domain you can use a selectattr filter to select a list of domains.  The group domain rejectattr filter is also not required here.
 
     {% set ignore_ts = (now().timestamp() - 60)|as_datetime %}
     {{ states|selectattr('domain','in',['sensor','binary_sensor'])
@@ -94,16 +98,11 @@ If you wish to monitor more than one specified domain you can use a selectattr f
       |rejectattr('last_changed','ge',ignore_ts)
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
-### Remove Ignored Entities Group
-If do not want to use the group.ignored_entities group you must also delete the following filter in the template sensor.
-
-    |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
-
 ## What is the log filter for?
 Some users have reported occasional template warnings in their Home Assistant log, especially when reloading templates.
 
 This warning is inconsequential and does not affect the sensor operation.  The logger filter suppresses these warnings.
 
-**Enabling this filter will suppress template loop warnings for ALL template sensors**
+**NOTE: Enabling this filter will suppress template loop warnings for ALL template sensors**
 
 Delete or comment out the logger filter code if you do not want template loop warnings supressed.
