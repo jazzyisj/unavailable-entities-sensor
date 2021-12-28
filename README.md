@@ -123,4 +123,4 @@ The following template would return all lights that have been on for more than 1
     {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
     {{ states.light
       |rejectattr('last_changed','ge',ignore_ts)
-      |selectattr('state','in','on')|map(attribute='entity_id')|list }}
+      |selectattr('state','eq','on')|map(attribute='entity_id')|list }}
