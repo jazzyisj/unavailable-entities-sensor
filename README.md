@@ -34,7 +34,7 @@ With this to ignore button and number domains.
 
     |rejectattr('domain','in',['group','button','number'])
 ### Monitoring Groups
- **The group domain should usually be ignored.**   Any group that has entities that has entities that aren't utilized by the group domain will have a state of unknown which more or less results in a permanent items listed in your sensor.  However if you do wish to monitor group states for some reason this can be accomplished by changing the group domain rejectattr filter `|rejectattr('domain',eq,'group')` to reject just the entity group.ignored_unavailable_entities `|rejectattr('entity_id','eq','group.ignored_unavailable_entities')`.
+ **The group domain should usually be ignored.**   Any group that has entities that has entities from domains that aren't utilized by the group domain will have a state of unknown, which more or less results in a permanent items listed in your sensor.  However if you do wish to monitor group states for some reason this can be accomplished by changing the group domain rejectattr filter `|rejectattr('domain',eq,'group')` to reject just the entity group.ignored_unavailable_entities `|rejectattr('entity_id','eq','group.ignored_unavailable_entities')`.
 ### Ignore Matching Entities
 If you have several entities to ignore that share a common uniquly identifiable portion of their entity_id name you can exclude them without adding each individual sensor
 to the ingore_entities group by adding a rejectattr filter using a search test.  You can add as many of these filters as you need. Be as specific as possible in your filters so you don't exclude unintended entities!  If the entities you want don't have a specific enough string to use and they have a unique_id in HA you can rename them in the UI using a more specific string in the entity_id if necessary.
@@ -77,7 +77,6 @@ This is an [example of this sensor](https://github.com/jazzyisj/) that contains 
       |rejectattr('entity_id','search','browser_')
       |rejectattr('last_changed','ge',ignore_ts)
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
-
 ## Monitor Specified Entities
 ### Single Domain
 To only monitor one domain, you can limit the states object search to that domain.  Note the group domain rejectattr filter is not required in this case because we are only monitoring the light domain.
