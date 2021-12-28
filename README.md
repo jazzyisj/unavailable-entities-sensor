@@ -51,6 +51,7 @@ Rename the signal strengh sensors with amore specific name and update the filter
 Now the signal strength WIFI sensors will be rejected but the WIFI connected sensor will still be monitored.
 
 **RegEx Filters**
+
 You can also use [regex pattern matching](https://regex101.com/) with search in a rejectattr (selectattr) filter.
 
     |rejectattr('entity_id', 'search', '(_alarm_volume|_next_alarm|_alarms)')
@@ -85,13 +86,18 @@ To monitor only one domain, you can limit the initial states object to that doma
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
 
-If you only wish to monitor more than one domain you can use a selectattr filter to select a specified list of domains.  The group rejectattr filter is also not required here.
+If you wish to monitor more than one specified domain you can use a selectattr filter to select a list of domains.  The group rejectattr filter is also not required here.
 
     {% set ignore_ts = (now().timestamp() - 60)|as_datetime %}
     {{ states|selectattr('domain','in',['sensor','binary_sensor'])
       |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
       |rejectattr('last_changed','ge',ignore_ts)
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
+
+### Remove Ignored Entities Group
+If do not want to use the group.ignored_entities group you must also delete the following filter in the template sensor.
+
+    |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
 
 ## What is the log filter for?
 Some users have reported occasional template warnings in their Home Assistant log, especially when reloading templates.

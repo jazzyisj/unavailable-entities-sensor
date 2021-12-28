@@ -1,9 +1,10 @@
 #######################################################################################################################
 ## Package - Unavailable Entities Sensor
 ## Count and list entities with a state of unavailable, unknown, or none (null)
+## See README for customization options. https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/README.md
 #######################################################################################################################
 
-# REQUIRED this is the template sensor
+# REQUIRED - This is the template sensor
 template:
   - sensor:
       - unique_id: unavailable_entities
@@ -23,7 +24,7 @@ template:
               |rejectattr('last_changed','ge',ignore_ts)
               |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
-# REQUIRED - Add any entities you do not with to monitor in this group.
+# REQUIRED - Add any entities you do not wish to monitor in this group.
 # IMPORTANT - This group MUST exist even if empty for sensor template to render.
 group:
   ignored_entities:
