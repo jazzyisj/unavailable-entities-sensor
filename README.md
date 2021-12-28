@@ -18,12 +18,10 @@ To create this sensor without installing as a package simply copy the relevant c
 There are several things you can do to customize the results of this sensor to meet your requirments.
 
 [Monitoring Different States](#monitoring-different-states)
-
 ### Remove Ignore Group
 If do not want to use the ignored_unavailable_entities group you must also delete the following filter from the template sensor.
 
     |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
-
 ### Ignore Seconds
 To change the time the sensor will ignore newly available entities that become unavailable, adjust the `ignore_seconds` value.  The default value is 60, meaning a sensor is not reported as unavailable until it's state has been unknown, unavailable, or null(none) for at least 60 seconds.
 
@@ -42,6 +40,7 @@ If you have several entities to ignore that share a common uniquly identifiable 
 to the ingore_entities group by adding a rejectattr filter using a search test.  You can add as many of these filters as you need. Be as specific as possible in your filters so you don't exclude unintended entities!  If the entities you want don't have a specific enough string to use and they have a unique_id in HA you can rename them in the UI using a more specific string in the entity_id if necessary.
 
 Eg You have these sensors in your configuration. And want to exclude just the wifi signal strengh sensors. Rejecting a search of 'wifi_' will also exclude the binary connected sensor.
+
     - binary_sensor.wifi_connected
     - sensor.wifi_downstairs
     - sensor.wifi_upstairs
@@ -57,14 +56,17 @@ Now the signal strength WIFI sensors will be rejected but the WIFI connected sen
 **RegEx Filters**
 
 You can also use [regex pattern matching](https://regex101.com/) with search in a rejectattr (selectattr) filter.
+
     |rejectattr('entity_id', 'search', '(_alarm_volume|_next_alarm|_alarms)')
 
 Would combine these three filters
+
     |rejectattr('entity_id','search','_alarm_volume')
     |rejectattr('entity_id','search','_next_alarm')
     |rejectattr('entity_id','search','_alarms')
 
 This is an [example of this sensor](https://github.com/jazzyisj/) that contains several filters.
+
     {% set ignore_sec = 60 %}
     {% set ignore_ts = (now().timestamp() - ignore_sec)|as_datetime %}
     {{ states.sensor
@@ -79,11 +81,13 @@ This is an [example of this sensor](https://github.com/jazzyisj/) that contains 
 ## Monitor Specified Entities
 ### Single Domain
 To only monitor one domain, you can limit the states object search to that domain.  Note the group domain rejectattr filter is not required in this case because we are only monitoring the light domain.
+
     {{ states.light
       |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 ### Multiple Domains
 If you wish to monitor more than one specified domain you can use a selectattr filter to select a list of domains.  The group domain rejectattr filter is also not required here.
+
     {{ states|selectattr('domain','in',['sensor','binary_sensor'])
       |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
@@ -94,6 +98,7 @@ If you wish to monitor more than one specified domain you can use a selectattr f
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
 **Note the group name change to something that makes more sense.**
+
     group:
       monitored_unavailable_entities:
         entities:
@@ -114,6 +119,7 @@ additional sensors to the package.
 Although out of the scope of the purposes of the unavailable entities sensor, if you'd like to monitor a different state other than unavailable you can do that too!
 
 The following template would return all lights that have been on for more than 15 minutes.
+
     {% set ignore_seconds = 900 %}
     {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
     {{ states.light
