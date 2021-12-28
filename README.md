@@ -14,25 +14,20 @@ To enable packages in your configuation, create a folder in your config director
     homeassistant:
       packages: /config/packages
 ### Install Without Pacakges
-To create this sensor without installing as a package simply copy the relevant code and paste in an appropriate place in your configuration.yaml file.
+To create this sensor without installing as a package simply copy the relevant code and paste in an appropriate place in your configuration.yaml file. The logger filter and example automation are optional. **The template sensor AND the ignored_entities group ARE BOTH REQURED for the default template to render.**
+## Customizing The Sensor
+There are several things you can do to customize the results of this sensor to meet your requirments.
+[Monitoring Different States](#monitoring-different-states#)]
 
-**The template sensor AND the ignored_entities group ARE BOTH REQURED for the default template to render.**
-
-If do not want to use the group.ignored_entities group you must also delete the following filter from the template sensor.
+### Remove Ignore Group
+If do not want to use the group.ignored_unavailable_entities group you must also delete the following filter from the template sensor.
 
     |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
 
-The logger filter and example automation are both optional.
-## Customizing The Sensor
-There are several things you can do to customize the results of this sensor to meet your requirments.
-
-[Monitoring Different States](#monitoring-different-states#)]
 ### Ignore Seconds
-To prevent the sensor from reporting entities that are unavailable for short intervals you can adjust the `ignore_seconds` value.
+To change the time the sensor will ignore newly available entities that become unavailable, adjust the `ignore_seconds` value.  The default value is 60, meaning a sensor is not reported as unavailable until it's state has been unknown, unavailable, or null(none) for at least 60 seconds.
 
-The default value is 60, meaning a sensor is not reported as unavailable until it's state has been unknown, unavailable, or null(none) for at least 60 seconds.
-Note: A value for 'ignore_seconds' less than 5 seconds may cause template loop warnings in your home assistant log, particularly when template sensors are reloaded.
-
+**Note: A value for 'ignore_seconds' less than 5 seconds may cause template loop warnings in your home assistant log, particularly when template sensors are reloaded.**
 ### Ignore Domains
 If you wish to ignore additional domains besides the default ignored group domain you can replace the filter
 
@@ -133,5 +128,5 @@ This warning is inconsequential and does not affect the sensor operation.  The l
 Delete or comment out the logger filter code if you do not want template loop warnings supressed.
 
 ## Multiple Sensors
-You can add as many version of these sensors as you need.  See the customized_unavailable_sensor_examples_package.yaml for examples how to do add
+You can add as many version of these sensors as you need.  See the [customized_unavailable_sensor_examples_package.yaml[(https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/examples/example_customized_sensor_package.yaml) for examples how to do add
 additional sensors to the package.
