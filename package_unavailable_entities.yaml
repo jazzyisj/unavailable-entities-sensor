@@ -7,8 +7,9 @@
 # REQUIRED - This is the template sensor
 template:
   - sensor:
-      - unique_id: unavailable_entities
-        name: 'Unavailable Entities'
+      - name: 'Unavailable Entities'
+        unique_id: unavailable_entities
+        icon: "{{ 'mdi:alert-circle if states('sensor.unavailable_entities')|int(0) > 0 else 'mdi:check-circle' }}"
         unit_of_measurement: entities
         state: >
           {% if state_attr('sensor.unavailable_entities','entities') != none %}
@@ -20,14 +21,14 @@ template:
             {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
             {{ states
               |rejectattr('domain','eq','group')
-              |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
+              |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
               |rejectattr('last_changed','ge',ignore_ts)
               |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
 # REQUIRED - Add any entities you do not wish to monitor in this group.
 # IMPORTANT - This group MUST exist even if empty for sensor template to render.
 group:
-  ignored_entities:
+  ignored_unavailable_entities:
     entities:
       - sensor.unavailable_entities # prevent template loop warnings?
       - binary_sensor.updater # always unknown after restart

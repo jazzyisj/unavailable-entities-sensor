@@ -16,7 +16,7 @@ To enable packages in your configuation, create a folder in your config director
 ### Install Without Pacakges
 To create this sensor without installing as a package simply copy the relevant code and paste in an appropriate place in your configuration.yaml file.
 
-**The template sensor AND the ignored_entities group ARE BOTH REQURED for the template to render.**
+**The template sensor AND the ignored_entities group ARE BOTH REQURED for the default template to render.**
 
 If do not want to use the group.ignored_entities group you must also delete the following filter from the template sensor.
 
@@ -24,19 +24,32 @@ If do not want to use the group.ignored_entities group you must also delete the 
 
 The logger filter and example automation are both optional.
 ## Customizing The Sensor
-There are several things you can do to customize the results of this sensor.
+There are several things you can do to customize the results of this sensor to meet your requirments.
+
+[Monitoring Different States](#monitoring-different-states#)]
 ### Ignore Seconds
 To prevent the sensor from reporting entities that are unavailable for short intervals you can adjust the `ignore_seconds` value.
 
 The default value is 60, meaning a sensor is not reported as unavailable until it's state has been unknown, unavailable, or null(none) for at least 60 seconds.
-The miniumun recommended value for 'ignore_seconds' is 5 to prevent template warnings.
+Note: A value for 'ignore_seconds' less than 5 seconds may cause template loop warnings in your home assistant log, particularly when template sensors are reloaded.
+
 ### Ignore Domains
-If you wish to ignore additional domains besides the default ignored group domain replace the following filter.
+If you wish to ignore additional domains besides the default ignored group domain you can replace the filter
 
     |rejectattr('domain','eq','group')
-For example, to ignore the button and number domains replace it with the following filter. **The group domain should always be ignored.**
+With this to ignore button and number domains.
 
     |rejectattr('domain','in',['group','button','number'])
+### Monitoring Groups
+
+ **The group domain should usually be ignored.**  |rejectattr('domain',eq,'group')
+
+ Any group that has an entity with an unknown state will have also have a state of unknown which more or less results in a
+ duplicate items listed in your sensor.  However if you do wish to monitor group states this can be accomplished by changing the group domain rejectattr filter
+ to reject just the entity group.ignored_unavailable_entities (this group will ALWAYS have a state of unknown if there are any entities in it with an unknown state)
+ so it should pretty much always be ignored.
+
+    |rejectattr('entity_id','eq','group.ignored_unavailable_entities')
 ### Ignore Matching Entities
 If you have several entities to ignore that share a common uniquly identifiable portion of their entity_id name you can exclude them without adding each individual sensor
 to the ingore_entities group by adding a rejectattr filter using a search test.  You can add as many of these filters as you need. Be as specific as possible in your filters so you don't exclude unintended entities!  If the entities you want don't have a specific enough string to use and they have a unique_id in HA you can rename them in the UI using a more specific string in the entity_id if necessary.
@@ -67,13 +80,12 @@ Would combine these three filters
     |rejectattr('entity_id','search','_next_alarm')
     |rejectattr('entity_id','search','_alarms')
 
-This is an [example of the sensor entities attribute template from my configuration](https://github.com/jazzyisj/home-assistant-config/blob/master/packages/hass/package_unavailable_entities.yaml) that contains several additional filters.
+This is an [example of this sensor](https://github.com/jazzyisj/) that contains several filters.
 
     {% set ignore_sec = 60 %}
     {% set ignore_ts = (now().timestamp() - ignore_sec)|as_datetime %}
-    {{ states
-      |rejectattr('domain','in',['group','camera'])
-      |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
+    {{ states.sensor
+      |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
       |rejectattr('entity_id','search','_alarm_volume|_next_alarm|_alarms')
       |rejectattr('entity_id','search','_memory_percent|_cpu_percent')
       |rejectattr('entity_id','search','_timers|_device|_do_not_disturb')
@@ -81,23 +93,43 @@ This is an [example of the sensor entities attribute template from my configurat
       |rejectattr('last_changed','ge',ignore_ts)
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
-## Include Domains Instead Of Exclude
-To monitor only one domain, you can limit the initial states object to that domain.  Note the group domain rejectattr filter is not required in this case because we are only monitoring the light domain.
+## Monitor Specified Entities
+### Single Domain
+To only monitor one domain, you can limit the states object search to that domain.  Note the group domain rejectattr filter is not required in this case because we are only monitoring the light domain.
 
-    {% set ignore_ts = (now().timestamp() - 60)|as_datetime %}
     {{ states.light
-      |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
-      |rejectattr('last_changed','ge',ignore_ts)
+      |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
-
+### Multiple Domains
 If you wish to monitor more than one specified domain you can use a selectattr filter to select a list of domains.  The group domain rejectattr filter is also not required here.
 
-    {% set ignore_ts = (now().timestamp() - 60)|as_datetime %}
     {{ states|selectattr('domain','in',['sensor','binary_sensor'])
-      |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
-      |rejectattr('last_changed','ge',ignore_ts)
+      |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
+
+### Group of Entities
+    {{ states
+      |rejectattr('domain == 'group')
+      |selectattr('entity_id','in',state_attr('group.monitored_unavailable_entities','entity_id'))
+      |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
+
+**Note the group name change to something that makes more sense.**
+    group:
+      monitored_unavailable_entities:
+        entities:
+          - sensor.some_entity
+          - binary_sensor.some_other_entity
+## Monitoring Different States
+Although out of the scope of the purposes of the unavailable entities sensor, if you'd like to monitor a different state other than unavailable you can do that too!
+
+The following template would return all lights that have been on for more than 15 minutes.
+
+    {% set ignore_seconds = 900 %}
+    {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
+    {{ states.light
+      |rejectattr('last_changed','ge',ignore_ts)
+      |selectattr('state','in','on')|map(attribute='entity_id')|list }}
 
 ## What is the log filter for?
 Some users have reported occasional template warnings in their Home Assistant log, especially when reloading templates.
@@ -107,3 +139,7 @@ This warning is inconsequential and does not affect the sensor operation.  The l
 **NOTE: Enabling this filter will suppress template loop warnings for ALL template sensors**
 
 Delete or comment out the logger filter code if you do not want template loop warnings supressed.
+
+## Multiple Sensors
+You can add as many version of these sensors as you need.  See the customized_unavailable_sensor_examples_package.yaml for examples how to do add
+additional sensors to the package.

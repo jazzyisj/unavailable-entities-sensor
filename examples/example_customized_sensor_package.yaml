@@ -1,0 +1,70 @@
+#######################################################################################################################
+## Unavailable Entities Sensor - CUSTOMIZED EXAMPLES
+## To add additional sensors to th package just the name and unique ID along with the relevent filters.
+## You can also add additional groups and automations to the package.
+#######################################################################################################################
+
+template:
+  - sensor:
+      - name: 'Unavailable Entities'
+        unique_id: unavailable_entities
+        icon: "{{ 'mdi:alert-circle if states('sensor.unavailable_entities')|int(0) > 0 else 'mdi:check-circle' }}"
+        unit_of_measurement: entities
+        state: >
+          {% if state_attr('sensor.unavailable_entities','entities') != none %}
+            {{ state_attr('sensor.unavailable_entities','entities')|count }}
+          {% endif %}
+        attributes:
+          entities: >
+            {% set ignore_seconds = 60 %}
+            {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
+            {{ states
+              |rejectattr('domain','eq','group')
+              |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
+              |rejectattr('last_changed','ge',ignore_ts)
+              |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
+
+
+      - name: 'Unavailable Sensors'
+        state: >
+          {% if state_attr('sensor.unavailable_sensors','entities') != none %}
+            {{ state_attr('sensor.unavailable_sensors','entities')|count }}
+          {% endif %}
+        attributes:
+          entities: >
+            {% set ignore_sec = 60 %}
+            {% set ignore_ts = (now().timestamp() - ignore_sec)|as_datetime %}
+            {{ states.sensor
+              |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
+              |rejectattr('entity_id','search','_alarm_volume|_next_alarm|_alarms')
+              |rejectattr('entity_id','search','_memory_percent|_cpu_percent')
+              |rejectattr('entity_id','search','_timers|_device|_do_not_disturb')
+              |rejectattr('entity_id','search','browser_')
+              |rejectattr('last_changed','ge',ignore_ts)
+              |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
+
+      - name: 'Unavailable Lights'
+        state: >
+          {% if state_attr('sensor.unavailable_sensors','entities') != none %}
+            {{ state_attr('sensor.unavailable_sensors','entities')|count }}
+          {% endif %}
+        attributes:
+          entities: >
+            {% set ignore_sec = 3600 %}
+            {% set ignore_ts = (now().timestamp() - ignore_sec)|as_datetime %}
+            {{ states.light
+              |selectattr('entity_id','in',state_attr('group.monitored_unavailable_entities','entity_id'))
+              |rejectattr('last_changed','ge',ignore_ts)
+              |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
+
+group:
+  ignored_unavailable_entities:
+    entities:
+      - binary_sensor.updater
+      - sensor.wifi_signal_strength
+      - sensor.next_alarm
+
+  monitored_unavailable_entities:
+    entities:
+      - light.bathroom_light
+      - light.porch light
