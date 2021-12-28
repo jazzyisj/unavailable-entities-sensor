@@ -1,5 +1,7 @@
 ## What does this template sensor do?
-The sensor's entities attribute is a list object of entity id's of entities that have a state of unknown, unavailable, or null (none)?
+This sensor iterates the state object and returns entities that have a state of unknown, unavailable, or null (none).
+
+The sensor state is a count of unavailable entities and the entities attribute is a list of those entity id's.
 
 The state of the sensor is a count of entity id's in the entities attribute.
 ## How do I install this sensor?
