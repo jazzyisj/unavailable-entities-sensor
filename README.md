@@ -18,10 +18,10 @@ To create this sensor without installing as a package simply copy the relevant c
 ## Customizing The Sensor
 There are several things you can do to customize the results of this sensor to meet your requirments.
 
-[Monitoring Different States](#monitoring-different-states#)]
+[Monitoring Different States](#monitoring-different-states#)
 
 ### Remove Ignore Group
-If do not want to use the group.ignored_unavailable_entities group you must also delete the following filter from the template sensor.
+If do not want to use the ignored_unavailable_entities group you must also delete the following filter from the template sensor.
 
     |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
 
