@@ -3,7 +3,6 @@ This sensor iterates the state object and returns entities that have a state of 
 
 The sensor state is a count of unavailable entities and the entities attribute is a list of those entity id's.
 
-The state of the sensor is a count of entity id's in the entities attribute.
 ## How do I install this sensor?
 ### Install Package
 The easiest way to use this sensor is to install it as a [package](https://www.home-assistant.io/docs/configuration/packages/).
