@@ -108,13 +108,12 @@ This warning is inconsequential and does not affect the sensor operation.  The l
 
 Delete or comment out the logger filter code if you do not want template loop warnings supressed.
 ## Multiple Sensors
-You can add as many version of these sensors as you need.  See the [customized_unavailable_sensor_examples_package.yaml](https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/examples/example_customized_sensor_package.yaml) for examples how to do add
+You can add as many version of these sensors as you need.  See [customized_unavailable_sensor_examples_package.yaml](https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/examples/example_customized_sensor_package.yaml) for examples how to do add
 additional sensors to the package.
 ## Monitoring Different States
 Although out of the scope of the purposes of the unavailable entities sensor, if you'd like to monitor a different state other than unavailable you can do that too!
 
 The following template would return all lights that have been on for more than 15 minutes.
-
     {% set ignore_seconds = 900 %}
     {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
     {{ states.light
