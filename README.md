@@ -54,16 +54,36 @@ This is an [example of the sensor entities attribute template from my configurat
       |rejectattr('entity_id','search','_device')
       |rejectattr('entity_id','search','_do_not_disturb')
       |rejectattr('entity_id','search','browser_')
-      |rejectattr('last_changed','lt',ignore_ts)
+      |rejectattr('last_changed','ge',ignore_ts)
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
+**RegEx Filters**
+You can also use [regex pattern matching](https://regex101.com/) with search in a rejectattr (selectattr) filter.
+
+    |rejectattr('entity_id', 'search', '(_alarm_volume|_next_alarm|_alarms)')
+
+Would combine these three filters
+
+    |rejectattr('entity_id','search','_alarm_volume')
+    |rejectattr('entity_id','search','_next_alarm')
+    |rejectattr('entity_id','search','_alarms')
+
 ## Include Domains Instead Of Exlude
-If you only wish to monitor certain domains you can choose to specifically include a domain (or list of domains) rather than exclude domains.
+To monitor only one domain, you can limit the initial states object to that domain.  Note we also removed the group domain rejectattr filter as it is not required in this case because we are only monitoring the light domain.
+
+    {% set ignore_ts = (now().timestamp() - 60)|as_datetime %}
+    {{ states.light
+      |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
+      |rejectattr('last_changed','ge',ignore_ts)
+      |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
+
+
+If you only wish to monitor more than one domain you can use a selectattr filter to select a specified list of domains.  The group rejectattr filter is also not required here.
 
     {% set ignore_ts = (now().timestamp() - 60)|as_datetime %}
     {{ states|selectattr('domain','in',['sensor','binary_sensor'])
       |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))
-      |rejectattr('last_changed','lt',ignore_ts)
+      |rejectattr('last_changed','ge',ignore_ts)
       |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
 
 ## What is the log filter for?
