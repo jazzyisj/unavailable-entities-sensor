@@ -50,6 +50,7 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.unavailable_entities
+    condition: "{{ states('sensor.unavailable_entities')|lower not in ['unknown','unavailable','none'] }}"
     action:
       - choose:
           conditions:
