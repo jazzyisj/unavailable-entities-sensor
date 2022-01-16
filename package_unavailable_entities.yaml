@@ -50,7 +50,12 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.unavailable_entities
-    condition: "{{ states('sensor.unavailable_entities')|lower not in ['unknown','unavailable','none'] }}"
+        to: ~
+    condition:
+      - condition: template
+        value_template: >
+          {{ is_number(trigger.from_state.state)
+              and is_number(trigger.to_state.state) }}
     action:
       - choose:
           conditions:
@@ -65,5 +70,7 @@ automation:
           - service: persistent_notification.create
             data:
               title: 'Unavailable Entities'
-              message: "- {{ expand(state_attr('sensor.unavailable_entities','entities'))|map(attribute='entity_id')|join('\n- ') }}"
+              message: >
+                - {{ expand(state_attr('sensor.unavailable_entities','entities'))
+                      |map(attribute='entity_id')|join('\n- ') }}
               notification_id: unavailable_entities
