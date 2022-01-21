@@ -1,9 +1,11 @@
-#######################################################################################################################
+###################################################################################################
 ## Package - Unavailable Entities Sensor
 ## Count and list entities with a state of unavailable, unknown, or none (null)
-## See README for customization options. https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/README.md
-#######################################################################################################################
+## See README for customization options.
+## https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/README.md
+###################################################################################################
 
+# NOTE: Home Assistant v2021.12 required to use as is.  For older versions please see README
 # REQUIRED - This is the template sensor
 template:
   - sensor:

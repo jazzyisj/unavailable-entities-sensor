@@ -2,6 +2,19 @@
 This sensor iterates the state object and returns entities that have a state of unknown, unavailable, or null (none).
 
 The sensor state is a count of unavailable entities and the entities attribute is a list of those entity id's.
+## Requirements ##
+To use this template as is you must be running at least Home Assistant v2021.12.  If you are getting the error `TypeError: argument 1 must be str, not float` in your logs after you install this sensor, you are probably still running an older version. If you are on an older version an can't update you can change the template definition to this which will remove the ignore_seconds feature.  When you update to at least Home Assistant to v2021.12, you can change it back to the updated version of the template.
+
+    attributes:
+        entities: >
+        {% if state_attr('group.ignored_unavailable_entities','entity_id') != none %}
+            {{ states
+            |rejectattr('domain','eq','group')
+            |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
+            |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
+        {% endif %}
+
+
 ## How do I install this sensor?
 ### Install Package
 The easiest way to use this sensor is to install it as a [package](https://www.home-assistant.io/docs/configuration/packages/).
