@@ -23,7 +23,7 @@ template:
               {% set ignore_seconds = 60 %}
               {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
               {{ states
-                |rejectattr('domain','eq','group')
+                |rejectattr('domain','in',['group','button'])
                 |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
                 |rejectattr('last_changed','ge',ignore_ts)
                 |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
