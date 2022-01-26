@@ -1,19 +1,11 @@
 ## What does this template sensor do?
 This sensor iterates the state object and returns entities that have a state of unknown, unavailable, or null (none).
 
-The sensor state is a count of unavailable entities and the entities attribute is a list of those entity id's.
+The sensor state is a count of unavailable entities and the entity_id attribute is a list of those entity id's.
+
+*NOTE: The entities attribute was changed to entity_id to conform to HA standards (see group entities).*
 ## Requirements ##
-To use this template as is you must be running at least Home Assistant v2021.12.  If you are getting the error `TypeError: argument 1 must be str, not float` in your logs after you install this sensor, you are probably still running an older version. If you are on an older version an can't update you can change the template definition to this which will remove the ignore_seconds feature.  When you update to at least Home Assistant to v2021.12, you can change it back to the updated version of the template.
-
-    attributes:
-        entities: >
-        {% if state_attr('group.ignored_unavailable_entities','entity_id') != none %}
-            {{ states
-            |rejectattr('domain','eq','group')
-            |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
-            |selectattr('state','in',['unavailable','unknown','none'])|map(attribute='entity_id')|list }}
-        {% endif %}
-
+To use this template as is you must be running at least Home Assistant v2021.12.  If you are getting the error `TypeError: argument 1 must be str, not float` in your logs after you install this sensor, you are likely running an older version of HA. If you are on an older version an can not update use the [pre v2021.12 version](https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/examples/example_customized_sensor_package.yaml) found in the examples folder.
 
 ## How do I install this sensor?
 ### Install Package
@@ -27,10 +19,13 @@ To enable packages in your configuation, create a folder in your config director
       packages: /config/packages
 ### Install Without Pacakges
 To create this sensor without installing as a package simply copy the relevant code and paste in an appropriate place in your configuration.yaml file. The logger filter and example automation are optional. **The template sensor AND the ignored_entities group ARE BOTH REQURED for the default template to render.**
+
+### Excluded Domains
+**Groups:** Group entities either have a [calculated state](https://www.home-assistant.io/integrations/group/#group-state-calculation) or a state of **unknown** meaning there really is no point to monitoring group entities for unknown or unavailabe states.  Group entities are not reported by this sensor.
+
+**Button:** The stateless **[button entity](https://www.home-assistant.io/integrations/button/)** was introduced in Home Assistant v2021.12. Since the entity is stateless and always has a state of unknown all button entities would always be reported by this sensor.  As this is normally undesireable behaviour button entities with a state of **unknown** are now excluded by default.  Button entities with a state of unavailable are still reported by the sensor.
 ## Customizing The Sensor
 There are several things you can do to customize the results of this sensor to meet your requirments.
-
-[Monitoring Different States](#monitoring-different-states)
 ### Remove Ignore Group
 If do not want to use the ignored_unavailable_entities group you must also delete the following filter from the template sensor.
 

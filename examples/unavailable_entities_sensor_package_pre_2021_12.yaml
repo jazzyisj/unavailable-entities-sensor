@@ -1,11 +1,12 @@
 ###################################################################################################
-## Package - Unavailable Entities Sensor
+## Package - Unavailable Entities Sensor - PRE HA VERSION 2021.12
 ## Count and list entities with a state of unavailable, unknown, or none (null)
 ## See README for customization options.
 ## https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/README.md
 ###################################################################################################
 
-# NOTE: Home Assistant v2021.12 required.  For older versions please see README
+# NOTE: This version is for Home Assistant versions prior to v2021.12 and does not use the ignore_seconds feature.
+
 # REQUIRED - This is the template sensor
 template:
   - sensor:
@@ -20,14 +21,11 @@ template:
         attributes:
           entity_id: >
             {% if state_attr('group.ignored_unavailable_entities','entity_id') != none %}
-              {% set ignore_seconds = 60 %}
-              {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
-              {% set entities = states|rejectattr('domain','in',['group','button'])|selectattr('state','in',['unavailable','unknown','none'])|list %}
-              {% set buttons = states.button|selectattr('state','eq','unavailable')|list %}
-              {{ (entities + buttons)
-                |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
-                |rejectattr('last_changed','ge',ignore_ts)
-                |map(attribute='entity_id')|list }}
+              {{ states
+                  |rejectattr('domain','eq','group')
+                  |selectattr('state','in',['unavailable','unknown','none'])|list
+                  |rejectattr('entity_id','in',state_attr('group.ignored_unavailable_entities','entity_id'))
+                  |map(attribute='entity_id')|list }}
             {% endif %}
 
 # REQUIRED - Add any entities you do not wish to monitor in this group.
