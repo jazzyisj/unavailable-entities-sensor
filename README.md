@@ -5,7 +5,7 @@ The sensor state is a count of unavailable entities and the entity_id attribute 
 
 *NOTE: The entities attribute was changed to entity_id to conform to HA standards (see group entities).*
 ## Requirements ##
-To use this template as is you must be running at least Home Assistant v2021.12.  If you are getting the error `TypeError: argument 1 must be str, not float` in your logs after you install this sensor, you are likely running an older version of HA. If you are on an older version an can not update use the [pre v2021.12 version](https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/examples/example_customized_sensor_package.yaml) found in the examples folder.
+To use this template as is you must be running at least Home Assistant v2021.12.  If you are getting the error `TypeError: argument 1 must be str, not float` in your logs after you install this sensor, you are likely running an older version of HA. If you are on an older version an can not update use the [pre v2021.12 version](https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/examples/unavailable_entities_sensor_package_pre_2021_12.yaml) found in the examples folder.
 
 ## How do I install this sensor?
 ### Install Package
