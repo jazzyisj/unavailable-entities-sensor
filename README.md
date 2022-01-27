@@ -16,7 +16,7 @@ If you already have packages enabled in your configuration, simply download pack
 To enable packages in your configuation, create a folder in your config directory named packages and add the following line to your configuration.yaml file.
 
     homeassistant:
-      packages: /config/packages
+      packages: !include_dir_named packages
 ### Install Without Pacakges
 To create this sensor without installing as a package simply copy the relevant code and paste in an appropriate place in your configuration.yaml file. The logger filter and example automation are optional. **The template sensor AND the ignored_entities group ARE BOTH REQURED for the default template to render.**
 

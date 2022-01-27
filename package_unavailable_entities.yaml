@@ -14,8 +14,8 @@ template:
         icon: "{{ 'mdi:alert-circle' if states('sensor.unavailable_entities')|int(0) > 0 else 'mdi:check-circle' }}"
         unit_of_measurement: entities
         state: >
-          {% if state_attr('sensor.unavailable_entities','entities') != none %}
-            {{ state_attr('sensor.unavailable_entities','entities')|count }}
+          {% if state_attr('sensor.unavailable_entities','entity_id') != none %}
+            {{ state_attr('sensor.unavailable_entities','entity_id')|count }}
           {% endif %}
         attributes:
           entity_id: >
