@@ -74,6 +74,6 @@ automation:
             data:
               title: 'Unavailable Entities'
               message: >
-                - {{ expand(state_attr('sensor.unavailable_entities','entities'))
+                - {{ expand(state_attr('sensor.unavailable_entities','entitiy_id'))
                       |map(attribute='entity_id')|join('\n- ') }}
               notification_id: unavailable_entities
