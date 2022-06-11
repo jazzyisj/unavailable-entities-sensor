@@ -51,7 +51,7 @@ Eg You have these sensors in your configuration. And want to exclude just the wi
 
 You can also use [regex pattern matching](https://regex101.com/) with search in a rejectattr (selectattr) filter.
 
-    |rejectattr('entity_id', 'search', '(_alarm_volume|_next_alarm|_alarms)')
+    |rejectattr('entity_id','search','(_alarm_volume|_next_alarm|_alarms)')
 
 Would combine these three filters
 
