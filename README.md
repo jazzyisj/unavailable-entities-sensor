@@ -39,9 +39,9 @@ With the following to ignore, for example, the button and number domains.
 Uncomment the `group.ignored_unavailable_entities definition` and add the entity to the group entities list.
 ### Ignore Matching Entities
 If you have several entities to ignore that share a common uniquly identifiable portion of their entity_id name you can exclude them without adding each individual sensor
-to the ingore_entities group by adding a rejectattr filter using a search test.  You can add as many of these filters as you need. Be as specific as possible in your filters so you don't exclude unintended entities!  
+to the ingore_entities group by adding a rejectattr filter using a search test.  You can add as many of these filters as you need.
 
-Eg You have these sensors in your configuration. And want to exclude just the wifi signal strengh sensors. Rejecting a search of 'wifi_' will also exclude the binary connected sensor.
+Be as specific as possible in your filters so you don't exclude unintended entities!  For example, You have these sensors in your configuration and want to exclude just the wifi signal strengh sensors. Rejecting a search of 'wifi_' will also exclude the binary connected sensor.
 
     - binary_sensor.wifi_connected
     - sensor.wifi_downstairs
