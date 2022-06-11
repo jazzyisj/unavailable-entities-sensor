@@ -72,7 +72,7 @@ template:
 
 #           - service: persistent_notification.create
 #             data:
-#                 notification_id: unavailable_entities
+#               notification_id: unavailable_entities
 #               title: "Unavailable Entities"
 #               message: >
 #                 {% set ns = namespace(result=[]) %}
