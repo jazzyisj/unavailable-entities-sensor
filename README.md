@@ -19,6 +19,7 @@ To enable packages in your configuation, create a folder in your config director
 ### Install Without Pacakges
 To create this sensor without using packages simply copy the relevant template code to an appropriate place in your configuration.yaml file. The ignored entities group and example automation are optional. 
 
+**NOTE!  You must reload templates, group entities (if you are using the ignored entities group), and automations (if you are utilizing the example automation, or made your own).**
 ## Customizing The Sensor
 There are several things you can do to customize the results of this sensor to meet your requirments.
 
