@@ -6,6 +6,7 @@
 ###################################################################################################
 
 # REQUIRED - This is the template sensor
+
 template:
   - sensor:
       - name: "Unavailable Entities"
@@ -68,7 +69,7 @@ template:
 #               title: "Unavailable Entities"
 #               message: "- {{ state_attr('sensor.unavailable_entities','entity_id')|join('\n- ') }}"
 
-# OPTIONAL Detailed notifcation message example courtesy of @ThomDietrich 
+# OPTIONAL Detailed notifcation message example courtesy of @ThomDietrich
 
 #           - service: persistent_notification.create
 #             data:
@@ -76,7 +77,7 @@ template:
 #               title: "Unavailable Entities"
 #               message: >
 #                 {% set ns = namespace(result=[]) %}
-#                 {% for s in expand(state_attr('sensor.unavailable_entities', 'entities')) %}
+#                 {% for s in expand(state_attr('sensor.unavailable_entities', 'entity_id')) %}
 #                   {% set ns.result = ns.result + [
 #                       "**" ~ s.name ~ "**\n"
 #                       ~ "- *entity_id*: " ~ s.entity_id ~ "\n"

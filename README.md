@@ -7,12 +7,12 @@ The sensor state is a count of unavailable entities and the entity_id attribute 
 To use this template as is you must be running at least Home Assistant v2022.5.
 
 ## How do I use this sensor?
-### Install Package
+### Install As Package
 The easiest way to use this sensor is to install it as a [package](https://www.home-assistant.io/docs/configuration/packages/).
 
-If you already have packages enabled in your configuration, simply download package_unavailable_entities.yaml to your packages directory.
+If you already have packages enabled in your configuration, simply download `package_unavailable_entities.yaml` to your packages directory.
 
-To enable packages in your configuation, create a folder in your config directory named packages and add the following line to your configuration.yaml file.
+To enable packages in your configuation, create a folder in your config directory named `packages` and add the following line to your `configuration.yaml` file.
 
     homeassistant:
       packages: !include_dir_named packages
