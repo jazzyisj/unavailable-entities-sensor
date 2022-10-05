@@ -69,7 +69,7 @@ template:
 #               title: "Unavailable Entities"
 #               message: "- {{ state_attr('sensor.unavailable_entities','entity_id')|join('\n- ') }}"
 
-# OPTIONAL Detailed notifcation message example courtesy of @ThomDietrich
+# OPTIONAL Detailed notifcation message example courtesy of @ThomDietrich and @warthog9
 
 #           - service: persistent_notification.create
 #             data:
