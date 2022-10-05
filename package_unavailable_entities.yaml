@@ -79,11 +79,30 @@ template:
 #                 {% set ns = namespace(result=[]) %}
 #                 {% for s in expand(state_attr('sensor.unavailable_entities', 'entity_id')) %}
 #                   {% set ns.result = ns.result + [
-#                       "**" ~ s.name ~ "**\n"
-#                       ~ "- *entity_id*: " ~ s.entity_id ~ "\n"
-#                       ~ "- *state*: " ~ s.state ~ "\n"
+#                       device_attr(s.entity_id, "name") ~ "|" ~ device_id(s.entity_id) ~ "|- **" ~ s.name ~ "**\n"
+#                       ~ "  - *entity_id*: " ~ s.entity_id ~ "\n"
+#                       ~ "  - *state*: " ~ s.state ~ "\n"
 #                     ]
 #                   %}
 #                 {% endfor %}
+# 
 #                 {% set ns.result = ns.result | sort %}
+#                 {% set lastdev = namespace( id="" ) %}
+#                 {% set tarr = ns.result %}
+#                 {% set ns.result = [] %}
+#                 {% for item in tarr %}
+#                   {% set dev = namespace( id="" ) %}
+#                   {% set entity = namespace( data="" ) %}
+#                   {% set dev.id = item.split("|")[1] %}
+#                   {% set entity.data = item.split("|")[2] %}
+#                   {% if lastdev.id != dev.id %}
+#                     {% if dev.id != 'None' %}
+#                       {% set ns.result = ns.result + [ "**<a href=\"/config/devices/device/" ~ dev.id ~ "\">" ~ device_attr(dev.id, "name") ~ "</a>**" ] %}
+#                     {% else %}
+#                       {% set ns.result = ns.result + [ "**Non-Device Entities**" ] %}
+#                     {% endif %}
+#                     {% set lastdev.id = dev.id %}
+#                   {% endif %}
+#                   {% set ns.result = ns.result + [ entity.data ] %}
+#                 {% endfor %}
 #                 {{ ns.result | join('\n') }}
