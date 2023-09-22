@@ -1,0 +1,17 @@
+type: entities
+title: "Unavailable Entities Example"
+state_color: true
+show_header_toggle: false
+entities:
+  - type: custom:auto-entities
+    show_empty: true
+    unique: true
+    filter:
+      template: "{{ state_attr('sensor.unavailable_entities','entity_id') }}"
+    sort:
+      method: state
+    card:
+      type: custom:fold-entity-row
+      padding: 0
+      head:
+        entity: sensor.unavailable_entities
