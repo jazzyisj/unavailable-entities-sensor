@@ -17,6 +17,7 @@ template:
         state: >
           {% set entities = state_attr(this.entity_id,'entity_id') %}
           {{ entities|count if entities != none else none }}
+        state_class: measurement
         attributes:
           entity_id: >
             {% set ignore_seconds = 60 %}
