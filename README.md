@@ -155,8 +155,8 @@ Using the [auto-entities](https://github.com/thomasloven/lovelace-auto-entities)
 
 *Closed Fold Entity Row*
 
-![Example](https://github.com/jazzyisj/unavailable-entities-sensor/blob/master/images/entities_card_closed_example.png)
+![Example](https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/images/entities_card_closed_example.png)
 
 *Open Fold Entity Row*
 
-![Example](https://github.com/jazzyisj/unavailable-entities-sensor/blob/master/images/entities_card_open_example.png)
+![Example](https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/images/entities_card_open_example.png)
