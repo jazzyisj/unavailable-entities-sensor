@@ -79,6 +79,8 @@ You can exclude entities from a specific integration by using an `in` test for t
 
     |rejectattr('entity_id','in',integration_entities('hassio'))
 
+You have to specifiy a correct integration name that can be different from the one displayed in the list of integrations. For example, you may need to use `garmin_connect` for an integration named _Garmin Connect_.
+
 ### Excluding Specific Devices
 You can exclude entities from a specific integration by using an `in` test for the entity_id and the [device_entities() function](https://www.home-assistant.io/docs/configuration/templating/#devices).
 
