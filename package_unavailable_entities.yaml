@@ -23,7 +23,7 @@ template:
             {% set ignored = state_attr('group.ignored_unavailable_entities','entity_id') %}
             {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
             {% set entities = states
-                |rejectattr('domain','in',['button','event','group','input_button','input_text','scene'])
+                |rejectattr('domain','in',['button','event','group','input_button','input_text','remote','scene'])
                 |rejectattr('last_changed','ge',ignore_ts) %}
             {% set entities =  entities|rejectattr('entity_id','in',ignored) if ignored != none else entities %}
             {{ entities|map(attribute='entity_id')|reject('has_value')|list|sort }}
