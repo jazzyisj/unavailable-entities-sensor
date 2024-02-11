@@ -1,0 +1,54 @@
+###################################################################################################
+## DESCRIPTION: Detailed persistent notification message - courtesy of @ThomDietrich and @warthog9
+###################################################################################################
+automation:
+  - id: unavailable_entities_notification
+    alias: "Unavailable Entities Notification"
+    description: "Create persistent notification if unavailable entities, dismiss if none."
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: sensor.unavailable_entities
+        attribute: entity_id
+        to: ~
+    condition:
+      - condition: template
+        alias: "Sensor state is a valid numerical value"
+        value_template: >
+          {{ is_number(trigger.from_state.state)
+              and is_number(trigger.to_state.state) }}
+    action:
+      - service: persistent_notification.create
+        data:
+          notification_id: unavailable_entities
+          title: "Unavailable Entities"
+          message: >
+            {% set ns = namespace(result=[]) %}
+            {% for s in expand(state_attr('sensor.unavailable_entities', 'entity_id')) %}
+              {% set ns.result = ns.result + [
+                  device_attr(s.entity_id, "name") ~ "|" ~ device_id(s.entity_id) ~ "|- **" ~ s.name ~ "**\n"
+                  ~ "  - *entity_id*: " ~ s.entity_id ~ "\n"
+                  ~ "  - *state*: " ~ s.state ~ "\n"
+                ]
+              %}
+            {% endfor %}
+            {% set ns.result = ns.result | sort %}
+            {% set lastdev = namespace( id="" ) %}
+            {% set tarr = ns.result %}
+            {% set ns.result = [] %}
+            {% for item in tarr %}
+              {% set dev = namespace( id="" ) %}
+              {% set entity = namespace( data="" ) %}
+              {% set dev.id = item.split("|")[1] %}
+              {% set entity.data = item.split("|")[2] %}
+              {% if lastdev.id != dev.id %}
+                {% if dev.id != 'None' %}
+                  {% set ns.result = ns.result + [ "**<a href=\"/config/devices/device/" ~ dev.id ~ "\">" ~ device_attr(dev.id, "name") ~ "</a>**" ] %}
+                {% else %}
+                  {% set ns.result = ns.result + [ "**Non-Device Entities**" ] %}
+                {% endif %}
+                {% set lastdev.id = dev.id %}
+              {% endif %}
+              {% set ns.result = ns.result + [ entity.data ] %}
+            {% endfor %}
+            {{ ns.result | join('\n') }}

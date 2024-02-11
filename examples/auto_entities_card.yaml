@@ -1,3 +1,8 @@
+###################################################################################################
+## DESCRIPTION: Using unavailable entities sensor with an auto entities card and fold entity row
+## https://github.com/thomasloven/lovelace-auto-entities
+## https://github.com/thomasloven/lovelace-fold-entity-row
+###################################################################################################
 type: entities
 title: "Unavailable Entities Example"
 state_color: true
