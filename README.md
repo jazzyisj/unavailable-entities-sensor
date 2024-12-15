@@ -1,7 +1,7 @@
 # ATTENTION! THE STRUCTURE FOR THIS SENSOR HAS CHANGED!
 # DOCS HAVE NOT BEEN UPDATED YET
 
-The old version is here [`package_unavailable_entities_old.yaml`](https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/package_unavailable_entities_old.yaml).
+The old version is here [`package_unavailable_entities_old.yaml`](https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/old/package_unavailable_entities_old.yaml).
 
 ## What does this template sensor do?
 This sensor iterates the state object and returns entities that have a state of unknown or unavailable.
