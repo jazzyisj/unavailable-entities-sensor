@@ -12,7 +12,8 @@ entities:
     show_empty: true
     unique: true
     filter:
-      template: "{{ state_attr('sensor.unavailable_entities','entity_id') }}"
+      include:
+        - group: group.unavailable_entities
     sort:
       method: state
     card:

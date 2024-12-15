@@ -7,16 +7,15 @@ automation:
     description: "Create persistent notification if unavailable entities, dismiss if none."
     mode: restart
     trigger:
-      - platform: state
-        entity_id: sensor.unavailable_entities
+      - trigger: state
+        entity_id: group.unavailable_entities
         attribute: entity_id
         to: ~
+        for: 5 # prevent blank notifications
     condition:
       - condition: template
         alias: "Sensor state is a valid numerical value"
-        value_template: >
-          {{ is_number(trigger.from_state.state)
-              and is_number(trigger.to_state.state) }}
+        value_template: "{{ is_number(states('sensor.unavailable_entities')) }}"
     action:
       - service: persistent_notification.create
         data:

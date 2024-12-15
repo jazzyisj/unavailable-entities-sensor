@@ -1,3 +1,8 @@
+# ATTENTION! THE STRUCTURE FOR THIS SENSOR HAS CHANGED!
+# DOCS HAVE NOT BEEN UPDATED YET
+
+The old version is here [`package_unavailable_entities_old.yaml`](https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/package_unavailable_entities_old.yaml).
+
 ## What does this template sensor do?
 This sensor iterates the state object and returns entities that have a state of unknown or unavailable.
 
@@ -17,7 +22,7 @@ To enable packages in your configuation, create a folder in your config director
     homeassistant:
       packages: !include_dir_named packages
 ### Install Without Packages
-To create this sensor without using packages simply copy the relevant template code to an appropriate place in your configuration.yaml file. The ignored entities group and example automation are optional. 
+To create this sensor without using packages simply copy the relevant template code to an appropriate place in your configuration.yaml file. The ignored entities group and example automation are optional.
 
 **NOTE!  You must reload templates, group entities (if you are using the ignored entities group), and automations (if you are utilizing the example automation) after adding the package or code to your configuration.**
 ## Customizing The Sensor
@@ -26,7 +31,7 @@ To change the time the sensor will ignore newly available entities that become u
 
 **A value for 'ignore_seconds' less than 5 seconds may cause template loop warnings in your home assistant log, particularly when template sensors are reloaded.**
 ### Ignore Domains
-Stateless domains (button, scene etc.) are excluded by default.  The group domain is also excluded as many groups will always have a state of `unknown`. 
+Stateless domains (button, scene etc.) are excluded by default.  The group domain is also excluded as many groups will always have a state of `unknown`.
 
 To track these domains remove them from the ignored domains filter.
 
@@ -101,18 +106,18 @@ You can exclude entities from a specific integration by using an `in` test for t
                     {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
                     {% set entities = states
                         |rejectattr('domain','in',['button','event','group','input_button','input_text','scene'])
-                        |rejectattr('entity_id','search','browser_')      
+                        |rejectattr('entity_id','search','browser_')
                         |rejectattr('entity_id','search','_alarm_volume|_next_alarm|_alarms')
                         |rejectattr('entity_id','contains','_memory_percent')
                         |rejectattr('entity_id','in',integration_entities('hassio'))
-                        |rejectattr('entity_id','in',device_entities('fffe8e4c87c68ee60e0ae84c295676ce')) 
+                        |rejectattr('entity_id','in',device_entities('fffe8e4c87c68ee60e0ae84c295676ce'))
                         |rejectattr('last_changed','ge',ignore_ts) %}
                     {% set entities =  entities|rejectattr('entity_id','in',ignored) if ignored != none else entities %}
                     {{ entities|map(attribute='entity_id')|reject('has_value')|list|sort }}
 
 See [Home Assistant Templating](https://www.home-assistant.io/docs/configuration/templating/) additional options.
 ### Specifing Entities to Monitor
-You can configure the sensor to only monitor entities you specify instead of monitoring all entities and specifing the entities to ignore by using select or selectattr filters instead of reject and rejectattr filters. Remember, select filters are cumlative and entities may be already excluded by previous filters.  
+You can configure the sensor to only monitor entities you specify instead of monitoring all entities and specifing the entities to ignore by using select or selectattr filters instead of reject and rejectattr filters. Remember, filters are cumlative and entities may be already excluded by previous filters.
 
 This example monitors only the `sensor` domain from the Shelly integration that contain the string "_power" in their entity_id.
 ## Example

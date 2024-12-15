@@ -1,70 +1,87 @@
 ###################################################################################################
-## PACKAGE: Unavailable Entities Sensor
+## PACKAGE: Unavailable Entities Sensor v2.0
 ## DESCRIPTION: Count and list entities with a state of unknown or unavailable
 ## REQUIREMENTS: Home Assistant v2022.5
 ## USAGE: https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/README.md
 ###################################################################################################
 
 # REQUIRED - This is the template sensor
-
 template:
   - sensor:
       - name: "Unavailable Entities"
         unique_id: unavailable_entities
         icon: "{{ iif(states(this.entity_id)|int(-1) > 0, 'mdi:alert-circle', 'mdi:check-circle') }}"
         state_class: measurement
-        unit_of_measurement: entities
         state: >
-          {% set entities = state_attr(this.entity_id, 'entity_id') %}
-          {{ entities | count if entities != none else none }}
-        attributes:
-          entity_id: >
-            {% set ignore_seconds = 60 %}
-            {% set ignored = state_attr('group.ignored_unavailable_entities', 'entity_id') %}
-            {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
-            {% set entities = states
-                | rejectattr('domain','in',['button', 'event', 'group', 'image', 'input_button', 'input_text', 'remote', 'tts', 'scene', 'stt'])
-                | rejectattr('last_changed', 'ge', ignore_ts) %}
-            {% set entities =  entities | rejectattr('entity_id', 'in', ignored) if ignored != none else entities %}
-            {{ entities | map(attribute='entity_id') | reject('has_value') | list | sort }}
+          {% set entities = state_attr('group.unavailable_entities', 'entity_id') %}
+          {{ entities | count if entities != none else -1 }}
 
-# OPTIONAL - Add entities you want to ignore to this group.  Delete if not using group.
-
+# REQUIRED - Add individual entities to ignore to this group.
 group:
-  ignored_unavailable_entities:
-    entities:
-      - sensor.example_ignored_entity
+  ignored_entities:
+    entities: []
 
-# OPTIONAL Example automation to demonstrate how you can utilize this sensor, other examples in examples folder
-
+# REQUIRED - This is required to create and update the monitored entities group. Sensor updates once every minute.
 automation:
+  - id: update_unavailable_entities_group
+    alias: "Update Unavailable Entities Group"
+    description: "Update unavailable entities group."
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - trigger: homeassistant
+        id: startup
+        event: start
+
+      - trigger: event
+        event_type: call_service
+        event_data:
+          domain: group
+          service: reload
+
+      - trigger: time_pattern
+        minutes: "/1"
+    action:
+      # IMPORTANT - This is the template to edit to exclude entities with filters.
+      - action: group.set
+        data:
+          object_id: unavailable_entities
+          entities: >
+            {{ states
+                | selectattr('state', 'in', ['unknown', 'unavailable'])
+                | rejectattr('domain', 'in', ['button', 'conversation', 'event', 'group', 'image',
+                  'input_button', 'input_text', 'remote', 'tts', 'scene', 'stt'])
+                | rejectattr('entity_id', 'in', state_attr('group.ignored_entities', 'entity_id'))
+                | map(attribute='entity_id') | list | sort }}
+
+  # OPTIONAL - Example automation to demonstrate how you can utilize this sensor, see example folder for more.
   - id: unavailable_entities_notification
     alias: "Unavailable Entities Notification"
     description: "Create persistent notification if unavailable entities, dismiss if none."
     mode: restart
     trigger:
-      - platform: state
-        entity_id: sensor.unavailable_entities
+      - trigger: state
+        entity_id: group.unavailable_entities
         attribute: entity_id
         to: ~
+        for: 5 # prevent blank notifications
     condition:
       - condition: template
         alias: "Sensor state is a valid numerical value"
-        value_template: >
-          {{ is_number(trigger.from_state.state)
-              and is_number(trigger.to_state.state) }}
+        value_template: "{{ is_number(states('sensor.unavailable_entities')) }}"
     action:
       - if:
           - condition: numeric_state
             entity_id: sensor.unavailable_entities
             below: 1
         then:
-          - service: persistent_notification.dismiss
+          - action: persistent_notification.dismiss
             data:
               notification_id: unavailable_entities
         else:
-          - service: persistent_notification.create
+          - action: persistent_notification.create
             data:
               notification_id: unavailable_entities
               title: "Unavailable Entities"
-              message: "{{ state_attr('sensor.unavailable_entities', 'entity_id') | join('\n') }}"
+              message: "{{ state_attr('group.unavailable_entities', 'entity_id') | join('\n') }}"
+
