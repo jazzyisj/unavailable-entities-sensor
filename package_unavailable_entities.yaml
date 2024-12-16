@@ -1,5 +1,5 @@
 ###################################################################################################
-## PACKAGE: Unavailable Entities Sensor v2.0
+## PACKAGE: Unavailable Entities Sensor v2.1
 ## DESCRIPTION: Count and list entities with a state of unknown or unavailable
 ## REQUIREMENTS: Home Assistant v2022.5
 ## USAGE: https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/README.md
@@ -21,7 +21,7 @@ group:
   ignored_entities:
     entities: []
 
-# REQUIRED - This is required to create and update the monitored entities group. Sensor updates once every minute.
+# REQUIRED - This is required to create and update the monitored entities group. Updates once every minute.
 automation:
   - id: update_unavailable_entities_group
     alias: "Update Unavailable Entities Group"
@@ -48,10 +48,11 @@ automation:
           object_id: unavailable_entities
           entities: >
             {{ states
-                | selectattr('state', 'in', ['unknown', 'unavailable'])
                 | rejectattr('domain', 'in', ['button', 'conversation', 'event', 'group', 'image',
                   'input_button', 'input_text', 'remote', 'tts', 'scene', 'stt'])
                 | rejectattr('entity_id', 'in', state_attr('group.ignored_entities', 'entity_id'))
+                | rejectattr('entity_id', 'eq', 'group.unavailable_entities')
+                | selectattr('state', 'in', ['unknown', 'unavailable'])
                 | map(attribute='entity_id') | list | sort }}
 
   # OPTIONAL - Example automation to demonstrate how you can utilize this sensor, see example folder for more.
@@ -64,7 +65,7 @@ automation:
         entity_id: group.unavailable_entities
         attribute: entity_id
         to: ~
-        for: 5 # prevent blank notifications
+        for: 5 # throttle triggers and prevent blank notifications
     condition:
       - condition: template
         alias: "Sensor state is a valid numerical value"

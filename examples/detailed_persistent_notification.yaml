@@ -11,7 +11,7 @@ automation:
         entity_id: group.unavailable_entities
         attribute: entity_id
         to: ~
-        for: 5 # prevent blank notifications
+        for: 5 # throttle triggers and prevent blank notifications
     condition:
       - condition: template
         alias: "Sensor state is a valid numerical value"
