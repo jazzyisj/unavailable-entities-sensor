@@ -21,9 +21,9 @@ To enable packages in your configuation, create a folder in your config director
 
 ### Install Without Packages
 
-To create this sensor without using packages simply copy the relevant code to an appropriate place in your configuration.yaml file. The automation is optional.
+To create this sensor without using packages simply copy the relevant code to an appropriate place in your configuration.yaml file. The example notification automation is optional.
 
-**NOTE!  You must reload automations, templates, and group entities after adding the package or code to your configuration.**
+**NOTE!  You must reload automations, templates, and group entities after adding this package!**
 
 ## Customizing The Template
 
@@ -110,15 +110,13 @@ You can exclude entities from a specific integration by using an `in` test for t
                         | selectattr('state', 'in', ['unknown', 'unavailable'])
                         | map(attribute='entity_id') | list | sort }}
 
-See [Home Assistant Templating](https://www.home-assistant.io/docs/configuration/templating/) additional options.
+See [Home Assistant Templating](https://www.home-assistant.io/docs/configuration/templating/) for additional options.
 
 ### Specifing Entities to Monitor - Custom Sensors
 
 You can configure the sensor to only monitor entities you specify instead of monitoring all entities and specifing the entities to ignore by using select or selectattr filters instead of reject and rejectattr filters. Remember, filters are cumlative and entities may be already excluded by previous filters.
 
-This is useful to create sensors that monitor specific domains, integrations etc. You can create as many groups and related sensors as you need.
-
-This example monitors only the `sensor` domain from the Shelly integration that contain the string `_power` in the entity_id.
+This is useful to create sensors that monitor specific domains, integrations etc. You can create as many groups and related sensors as you need. The following example monitors only the `sensor` domain from the Shelly integration that contain the string `_power` in the entity_id.
 
 ## Example
 
