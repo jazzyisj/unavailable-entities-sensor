@@ -2,6 +2,14 @@
 
 [Read about the changes here.](https://github.com/jazzyisj/unavailable-entities-sensor/discussions/57)
 
+### REQUIREMENTS ###
+
+Home Assistant v2023.8 is the minimum version required to use this package.
+
+The [auto-entities](https://github.com/thomasloven/lovelace-auto-entities) lovelace plugin and
+the [fold-entity-row](https://github.com/thomasloven/lovelace-fold-entity-row) plugins are both required
+to use the example lovelace card.  They are both available on [HACS](https://www.hacs.xyz/).
+
 ## What does this package do?
 
 This package creates a group of entities that have no value (a state of unknown or unavailable) and a sensor that provides a count of the entities in this group.

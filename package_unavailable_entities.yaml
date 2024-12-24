@@ -1,7 +1,7 @@
 ###################################################################################################
-## PACKAGE: Unavailable Entities Sensor v2.1
+## PACKAGE: Unavailable Entities Sensor v2.2
 ## DESCRIPTION: Count and list entities with a state of unknown or unavailable
-## REQUIREMENTS: Home Assistant v2022.5
+## REQUIREMENTS: Home Assistant v2023.8
 ## USAGE: https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/README.md
 ###################################################################################################
 
@@ -28,7 +28,7 @@ automation:
     description: "Update unavailable entities group."
     mode: single
     max_exceeded: silent
-    trigger:
+    triggers:
       - trigger: homeassistant
         id: startup
         event: start
@@ -41,7 +41,7 @@ automation:
 
       - trigger: time_pattern
         minutes: "/1"
-    action:
+    actions:
       # IMPORTANT - This is the template to edit to exclude entities with filters.
       - action: group.set
         data:
@@ -60,17 +60,17 @@ automation:
     alias: "Unavailable Entities Notification"
     description: "Create persistent notification if unavailable entities, dismiss if none."
     mode: restart
-    trigger:
+    triggers:
       - trigger: state
         entity_id: group.unavailable_entities
         attribute: entity_id
         to: ~
         for: 5 # throttle triggers and prevent blank notifications
-    condition:
+    conditions:
       - condition: template
         alias: "Sensor state is a valid numerical value"
         value_template: "{{ is_number(states('sensor.unavailable_entities')) }}"
-    action:
+    actions:
       - if:
           - condition: numeric_state
             entity_id: sensor.unavailable_entities
