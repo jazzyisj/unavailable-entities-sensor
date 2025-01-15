@@ -23,7 +23,7 @@ automation:
           title: "Unavailable Entities"
           message: >
             {% set ns = namespace(result=[]) %}
-            {% for s in expand(state_attr('sensor.unavailable_entities', 'entity_id')) %}
+            {% for s in expand(state_attr('group.unavailable_entities', 'entity_id')) %}
               {% set ns.result = ns.result + [
                   device_attr(s.entity_id, "name") ~ "|" ~ device_id(s.entity_id) ~ "|- **" ~ s.name ~ "**\n"
                   ~ "  - *entity_id*: " ~ s.entity_id ~ "\n"
