@@ -47,7 +47,7 @@ automation:
             {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
             {{ states
                 | rejectattr('domain', 'in', ['button', 'conversation', 'event', 'group', 'image',
-                  'input_button', 'input_text', 'remote', 'tts', 'scene', 'stt'])
+                  'input_button', 'input_text', 'remote', 'tts', 'scene', 'stt', 'update'])
                 | rejectattr('entity_id', 'in', state_attr('group.ignored_entities', 'entity_id'))
                 | rejectattr('entity_id', 'eq', 'group.unavailable_entities')
                 | rejectattr('last_changed', 'ge', ignore_ts)
