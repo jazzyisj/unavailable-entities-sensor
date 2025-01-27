@@ -29,10 +29,6 @@ automation:
     mode: single
     max_exceeded: silent
     triggers:
-      - trigger: homeassistant
-        id: startup
-        event: start
-
       - trigger: event
         event_type: call_service
         event_data:
