@@ -1,11 +1,21 @@
 ###################################################################################################
-## PACKAGE: Unavailable Entities Sensor v2.2
+## PACKAGE: Unavailable Entities Sensor v2.4
 ## DESCRIPTION: Count and list entities with a state of unknown or unavailable
 ## REQUIREMENTS: Home Assistant v2024.8
 ## USAGE: https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/README.md
 ###################################################################################################
 
-# REQUIRED - This is the template sensor
+#REQUIRED - List of disabled device entities
+command_line:
+  sensor:
+      name: Disabled Device Entities
+      unique_id: disabled_device_entities
+      json_attributes:
+        - entities
+      value_template: "{{ value_json.entities | length }}"
+      command: 'jq ''.data.entities |= map(select(.disabled_by? != null) | {entity_id: .entity_id}) | del(.data.deleted_entities) | flatten | .[3]'' < .storage/core.entity_registry'
+
+#REQUIRED - Count of unavailable entities
 template:
   - sensor:
       - name: "Unavailable Entities"
@@ -16,12 +26,13 @@ template:
           {% set entities = state_attr('group.unavailable_entities', 'entity_id') %}
           {{ entities | count if entities != none else -1 }}
 
-# REQUIRED - Add individual entities to ignore to this group.
+#REQUIRED - Group of individually ignored entities
+#TODO - Add entities to group
 group:
   ignored_entities:
     entities: []
 
-# REQUIRED - This is required to create and update the monitored entities group. Updates once every minute.
+#REQUIRED - Create and update the monitored entities group. Updates once per minute.
 automation:
   - id: update_unavailable_entities_group
     alias: "Update Unavailable Entities Group"
@@ -38,23 +49,36 @@ automation:
       - trigger: time_pattern
         minutes: "/1"
     actions:
-      # IMPORTANT - This is the template to edit to exclude entities with filters.
+      #IMPORTANT - This is the template to edit to exclude entities with filters.
+      #TODO - Change ignore_seconds, ignore_label, ignored_domains, and filters to desired values
       - action: group.set
         data:
           object_id: unavailable_entities
           entities: >
             {% set ignore_seconds = 60 %}
+            {% set ignore_label = 'ignored' %}
+            {% set ignored_domains = ['button', 'conversation', 'event', 'group', 'image',
+                'input_button', 'input_text', 'remote', 'tts', 'scene', 'stt', 'update'] %}
             {% set ignore_ts = (now().timestamp() - ignore_seconds)|as_datetime %}
+            {% set disabled_device_entities = state_attr('sensor.disabled_device_entities', 'entities')
+                | regex_replace(find='\[|\]|\{|\}|\'entity_id\':', replace='') %}
+            {% set ignored_devices = label_devices(ignore_label | lower) %}
+            {% set ignored_device_entities = namespace(value=[]) %}
+            {% for device in ignored_devices %}
+              {% set ignored_device_entities.value = ignored_device_entities.value + device_entities(device) %}
+            {% endfor %}
             {{ states
-                | rejectattr('domain', 'in', ['button', 'conversation', 'event', 'group', 'image',
-                  'input_button', 'input_text', 'remote', 'tts', 'scene', 'stt', 'update'])
+                | rejectattr('domain', 'in', ignored_domains)
+                | rejectattr('entity_id', 'in', disabled_device_entities)
                 | rejectattr('entity_id', 'in', state_attr('group.ignored_entities', 'entity_id'))
-                | rejectattr('entity_id', 'eq', 'group.unavailable_entities')
+                | rejectattr('entity_id', 'in', ['group.unavailable_entities', 'group.ignored_entities'])
+                | rejectattr('entity_id', 'in', ignored_device_entities.value)
+                | rejectattr('entity_id', 'in', label_entities(ignore_label | lower))
                 | rejectattr('last_changed', 'ge', ignore_ts)
                 | selectattr('state', 'in', ['unknown', 'unavailable'])
                 | map(attribute='entity_id') | list | sort }}
 
-  # OPTIONAL - Example automation to demonstrate how you can utilize this sensor, see example folder for more.
+  #OPTIONAL - Example notfication automation to demonstrate how you can utilize this sensor. (See example folder for more.)
   - id: unavailable_entities_notification
     alias: "Unavailable Entities Notification"
     description: "Create persistent notification if unavailable entities, dismiss if none."
