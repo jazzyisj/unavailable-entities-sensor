@@ -1,25 +1,26 @@
-### ATTENTION! THE STRUCTURE FOR THIS SENSOR HAS CHANGED!
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://hacs.xyz/)
 
-[Read about the changes here.](https://github.com/jazzyisj/unavailable-entities-sensor/discussions/57)
+# Unavailable Entities Template Sensor
+## What does this package do?
+This package creates a group of entities that have no value (a state of unknown or unavailable) and a sensor that provides a count of the entities in this group.
 
-### REQUIREMENTS ###
+The sensor can be used to help you discover entities which should to be disabled or deleted and help you identify misbehaving or failed devices.
 
+The structure for this sensor has changed from the original version. [You can read about the changes here.](https://github.com/jazzyisj/unavailable-entities-sensor/discussions/57)
+
+### Requirements
 Home Assistant v2024.8 is the minimum version required to use this package.
 
-The [auto-entities](https://github.com/thomasloven/lovelace-auto-entities) and
-[fold-entity-row](https://github.com/thomasloven/lovelace-fold-entity-row) plugins are both required
-to use the example lovelace card.  They are both available on [HACS](https://www.hacs.xyz/).
+The [auto-entities](https://github.com/thomasloven/lovelace-auto-entities) and [fold-entity-row](https://github.com/thomasloven/lovelace-fold-entity-row) plugins is required to use the example lovelace card.
 
-## What does this package do?
+[![auto-entities](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=thomasloven&repository=lovelace-auto-entities)
 
-This package creates a group of entities that have no value (a state of unknown or unavailable) and a sensor that provides a count of the entities in this group.  This can help you discover entities which should to be disabled or deleted and help you identify misbehaving or failed devices.
+The [fold-entity-row](https://github.com/thomasloven/lovelace-fold-entity-row) plugins is required to use the example lovelace card.
 
-By default, entities belonging to disabled devices are ignored by the unavailable entities sensor.  Entities belonging a devices labelled "Ignored" and individual entities labled "Ignored" are also ignored.  The default label "Ignored" can be changed in the group.unavavailable_entities template.  The label is not case sensitive.
+[![auto-entities](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=thomasloven&repository=lovelace-fold-entity-row)
 
-## How do I install it?
-
+## Installation
 ### Install As Package
-
 The easiest way to use this sensor is to install it as a [package](https://www.home-assistant.io/docs/configuration/packages/).
 
 If you already have packages enabled in your configuration, download [`package_unavailable_entities.yaml`](https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/package_unavailable_entities.yaml) to your packages directory.
@@ -30,14 +31,19 @@ To enable packages in your configuation, create a folder in your config director
       packages: !include_dir_named packages
 
 ### Install Without Packages
-
 To create this sensor without using packages simply copy the relevant code to an appropriate place in your configuration.yaml file. The example notification automation is optional.
 
 **NOTE!  You must reload automations, templates, and group entities after adding this package!**
 
-## Customizing The Template
+## Excluding Entities
+You will likely have many devices and/or entities which you do not need to monitor or that often have states of unknown or unavailable. These devices and entities can be excluded from the sensor.  Excluding a device excludes all of it's entities.
 
-### Ignore Domains
+Disabled devices and entities and devices and entities labeled `ignored` in the UI are excluded from the sensor by default.  To use a different label name, change the `ignore_label` value in the group template to the desired value. The label is not case sensitive.  This is the recommended way to exclude entities.
+
+### Customizing The Template
+In addition to excluding entities using labels in the UI, entities can also be excluded with additional filters in the template, or by adding them to the `group.ignored_entities` definition.
+
+#### Ignore Domains
 
 Domains that are "stateless" (button, scene, event etc) or that don't make sense to monitor are excluded by default. To monitor these domains remove them from the ignored domains filter.
 
@@ -51,11 +57,11 @@ Example - add the `switch` domain.
 
     |rejectattr('domain', 'in', ['button', 'event', 'group', 'input_button', 'input_text', 'scene', 'switch'])
 
-### Ignore Specific Entities
+#### Ignore Specific Entities
 
 To ignore specific entities, add them to the `group.ignored_unavailable_entities` declaration.
 
-### Ignore Matching Entities
+#### Ignore Matching Entities
 
 **Search Test**
 
@@ -85,19 +91,19 @@ The [contains](https://www.home-assistant.io/docs/configuration/templating/#cont
 
     |rejectattr('entity_id', 'contains', 'wifi_')
 
-### Excluding Specific Integrations
+#### Excluding Specific Integrations
 
 You can exclude entities from a specific integration by using an `in` test for the entity_id and the [integration_entities() function](https://www.home-assistant.io/docs/configuration/templating/#integrations).
 
     |rejectattr('entity_id', 'in',integration_entities('hassio'))
 
-### Excluding Specific Devices
+#### Excluding Specific Devices
 
 You can exclude entities from a specific integration by using an `in` test for the entity_id and the [device_entities() function](https://www.home-assistant.io/docs/configuration/templating/#devices).
 
     |rejectattr('entity_id', 'in',device_entities('fffe8e4c87c68ee60e0ae84c295676ce'))
 
-## Full Example
+### Full Example
 
     automation:
       ~~~
@@ -116,7 +122,7 @@ You can exclude entities from a specific integration by using an `in` test for t
                   {% set ignored_devices = label_devices(ignore_label | lower) %}
                   {% set ignored_device_entities = namespace(value=[]) %}
                   {% for device in ignored_devices %}
-                    {% set ignored_device_entities.value = ignored_device_entities.value + device_entities(device) %}
+                  {% set ignored_device_entities.value = ignored_device_entities.value + device_entities(device) %}
                   {% endfor %}
                   {{ states
                       | rejectattr('domain', 'in', ignored_domains)
@@ -142,7 +148,7 @@ You can configure the sensor to only monitor entities you specify instead of mon
 
 This is useful to create sensors that monitor specific domains, integrations etc. You can create as many groups and related sensors as you need. The following example monitors only the `sensor` domain from the Shelly integration that contain the string `_power` in the entity_id.
 
-## Example
+### Example
 
     template:
       - sensor:
@@ -175,7 +181,7 @@ To display a list of unavailable entities open the more-info dialogue of group.u
 
 ![Example](https://github.com/jazzyisj/unavailable-entities-sensor/blob/main/images/group_more_info.png)
 
-### Using Auto Entities and Fold Entity Row
+#### Using Auto Entities and Fold Entity Row
 Using the [auto-entities](https://github.com/thomasloven/lovelace-auto-entities) and [fold-entity-row](https://github.com/thomasloven/lovelace-fold-entity-row) plugins is an excellent way to display your unavailable entities sensor in your UI.
 
 [Example Entities Card](https://github.com/jazzyisj/unavailable-entities-sensor/blob/master/examples/auto_entities_card.yaml)

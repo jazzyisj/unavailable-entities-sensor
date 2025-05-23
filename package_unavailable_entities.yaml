@@ -26,11 +26,10 @@ template:
           {% set entities = state_attr('group.unavailable_entities', 'entity_id') %}
           {{ entities | count if entities != none else -1 }}
 
-#REQUIRED - Group of individually ignored entities
-#TODO - Add entities to group
-group:
-  ignored_entities:
-    entities: []
+#OPTIONAL - Group of individually ignored entities
+# group:
+#   ignored_entities:
+#     entities:
 
 #REQUIRED - Create and update the monitored entities group. Updates once per minute.
 automation:
@@ -49,8 +48,6 @@ automation:
       - trigger: time_pattern
         minutes: "/1"
     actions:
-      #IMPORTANT - This is the template to edit to exclude entities with filters.
-      #TODO - Change ignore_seconds, ignore_label, ignored_domains, and filters to desired values
       - action: group.set
         data:
           object_id: unavailable_entities
